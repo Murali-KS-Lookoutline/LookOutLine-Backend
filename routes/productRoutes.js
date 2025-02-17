@@ -12,13 +12,14 @@ const router = express.Router();
 
 router
   .route("/")
-  .post(protect, authorize("admin"), createProduct)
+  // .post(protect, authorize("admin"), createProduct)
+  .post(createProduct)
   .get(getProducts); // Get all products (with optional filtering)
 
 router
   .route("/:id")
   .get(getProductById) // Get a single product by ID
-  .put(protect, authorize("admin"), updateProduct)
-  .delete(protect, authorize("admin"), deleteProduct);
+  .put(updateProduct)
+  .delete(deleteProduct);
 
 module.exports = router;
