@@ -7,7 +7,7 @@ dotenv.config();
 /**
  * Generate a JWT token for a user
  * @param {string} userId - The ID of the user
- * @param {string} role - The role of the user (admin, customer, vendor)
+ * @param {string} role - The role of the user (admin, user, vendor)
  * @returns {string} - The generated JWT token
  */
 const generateToken = (userId, role) => {

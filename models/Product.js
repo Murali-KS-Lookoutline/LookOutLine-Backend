@@ -1,34 +1,33 @@
 const mongoose = require("mongoose");
 
 const productSchema = new mongoose.Schema({
-  name: { type: String, required: true },
+  productName: { type: String, required: true },
+  sku: { type: String, required: true },
   category: { type: String, required: true },
   brand: { type: String, required: true },
-  model: { type: String, required: true },
-  description: { type: String, required: true },
+  shortDescription: { type: String },
   status: { type: String, enum: ["Active", "Inactive"], default: "Active" },
-  price: {
-    cost_price: { type: Number },
-    selling_price: { type: Number },
-    currency: { type: String, default: "INR" },
-  },
-  stock: {
-    quantity: { type: Number },
-    status: {
-      type: String,
-      enum: ["In Stock", "Out of Stock"],
-      default: "In Stock",
-    },
-  },
+  price: { type: Number, default: 0 },
+  stockQuantity: { type: Number, default: 0 },
+  productCategory: { type: String },
+  channels: { type: String },
+  cameraType: { type: String },
+  megapixel: { type: String },
+  audio: { type: String },
+  smpsChannels: { type: String },
+  poeChannels: { type: String },
+  storageType: { type: String },
+  storageCapacity: { type: String },
+  keySpecs: { type: String },
   supplier: {
-    name: { type: String, required: true },
+    name: { type: String },
     contact: {
       phone: { type: String },
       email: { type: String },
       address: { type: String },
     },
   },
-  images: [{ type: String }],
+  imageUrls: [{ type: String }],
   dimensions: {
     weight: { value: { type: Number }, unit: { type: String, default: "g" } },
   },
@@ -69,7 +68,6 @@ const productSchema = new mongoose.Schema({
   metadata: {
     date_added: { type: Date, default: Date.now },
     last_updated: { type: Date, default: Date.now },
-    created_by: { type: String, required: true },
   },
 });
 
