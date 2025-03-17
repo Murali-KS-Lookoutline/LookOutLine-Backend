@@ -18,6 +18,7 @@ const productSchema = new mongoose.Schema({
   poeChannels: { type: String },
   storageType: { type: String },
   storageCapacity: { type: String },
+  rating: [{ type: String }],
   keySpecs: { type: String },
   supplier: {
     name: { type: String },
