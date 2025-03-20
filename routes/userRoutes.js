@@ -11,7 +11,7 @@ const router = express.Router();
 router
   .route("/:id")
   .delete(protect, authorize("admin"), deleteUser)
-  .put(protect, authorize("admin"), updateUser)
-  .get(protect, authorize("admin"), getUserProfile);
+  .put(protect, updateUser)
+  .get(protect, getUserProfile);
 
 module.exports = router;
