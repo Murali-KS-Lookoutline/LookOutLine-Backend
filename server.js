@@ -37,6 +37,15 @@ app.use("/api/users", require("./routes/userRoutes"));
 // Error handling middleware (must be after routes)
 app.use(errorHandler);
 
+// Health check route
+app.get("/", (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "API is running successfully",
+    timestamp: new Date().toISOString(),
+  });
+});
+
 // Start the server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
