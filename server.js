@@ -33,6 +33,7 @@ app.use(limiter);
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/products", require("./routes/productRoutes"));
 app.use("/api/users", require("./routes/userRoutes"));
+app.use("/api/services", require("./routes/serviceRoutes"));
 
 // Error handling middleware (must be after routes)
 app.use(errorHandler);
