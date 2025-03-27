@@ -54,7 +54,7 @@ const getUserProfile = async (req, res) => {
 const getUserByRole = async (req, res) => {
   try {
     const users = await User.find({ role: req.params.role })
-      .select("name mobile address_details") // Select only required fields
+      .select("uid name mobile address_details") // Select only required fields
       .lean(); // Converts Mongoose documents to plain objects for better performance
 
     if (users.length === 0) {
@@ -63,6 +63,7 @@ const getUserByRole = async (req, res) => {
 
     // Format address for each user
     const formattedUsers = users.map((user) => ({
+      uid: user.uid,
       name: user.name,
       mobile: user.mobile || user.address_details?.mobile || null, // Use main mobile, fallback to address mobile
       address: [
