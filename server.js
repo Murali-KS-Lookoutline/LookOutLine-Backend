@@ -18,7 +18,11 @@ const app = express();
 
 // Middleware
 app.use(express.json()); // Parse JSON request bodies
-app.use(cors()); // Enable CORS
+const corsOptions = {
+  origin: ["http://localhost:5173", "https://lookoutline.com"],
+  credentials: true,
+};
+app.use(cors(corsOptions)); // Enable CORS
 app.use(helmet()); // Set security headers
 app.use(morgan("combined")); // Log HTTP requests
 

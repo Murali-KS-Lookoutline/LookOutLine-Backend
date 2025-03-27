@@ -51,4 +51,38 @@ const getUserProfile = async (req, res) => {
   }
 };
 
-module.exports = { deleteUser, updateUser, getUserProfile };
+const getUserByRole = async (req, res) => {
+  try {
+    const users = await User.find({ role: req.params.role })
+      .select("name mobile address_details") // Select only required fields
+      .lean(); // Converts Mongoose documents to plain objects for better performance
+
+    if (users.length === 0) {
+      return res.status(404).json({ message: "No Users Found" });
+    }
+
+    // Format address for each user
+    const formattedUsers = users.map((user) => ({
+      name: user.name,
+      mobile: user.mobile || user.address_details?.mobile || null, // Use main mobile, fallback to address mobile
+      address: [
+        user.address_details?.address_line,
+        user.address_details?.city,
+        user.address_details?.state,
+        user.address_details?.pincode,
+        user.address_details?.country,
+      ]
+        .filter(Boolean) // Remove undefined/null values
+        .join(", "), // Join as a single string
+    }));
+
+    res.status(200).json(formattedUsers);
+  } catch (err) {
+    res.status(400).json({
+      message: "Failed to fetch user list",
+      error: err.message,
+    });
+  }
+};
+
+module.exports = { deleteUser, updateUser, getUserProfile, getUserByRole };

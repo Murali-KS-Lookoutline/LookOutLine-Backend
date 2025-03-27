@@ -4,9 +4,11 @@ const {
   deleteUser,
   updateUser,
   getUserProfile,
+  getUserByRole,
 } = require("../controllers/userController");
 
 const router = express.Router();
+router.route("/:role").get(getUserByRole);
 
 router
   .route("/:id")
