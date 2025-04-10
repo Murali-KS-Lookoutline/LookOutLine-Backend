@@ -6,6 +6,10 @@ const rateLimit = require("express-rate-limit");
 const cors = require("cors");
 const connectDB = require("./config/db");
 const errorHandler = require("./middleware/errorHandler");
+const passport = require("passport");
+const session = require("express-session");
+require("./config/passport");
+const cookieParser = require("cookie-parser");
 
 // Load environment variables
 dotenv.config();
@@ -15,6 +19,14 @@ connectDB();
 
 // Initialize Express app
 const app = express();
+
+//google integration
+app.use(
+  session({ secret: "your_secret", resave: false, saveUninitialized: false })
+);
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(cookieParser());
 
 // Middleware
 app.use(express.json()); // Parse JSON request bodies
@@ -35,6 +47,7 @@ app.use(limiter);
 
 // Routes
 app.use("/api/auth", require("./routes/authRoutes"));
+app.use("/api/google", require("./routes/googleAuth"));
 app.use("/api/products", require("./routes/productRoutes"));
 app.use("/api/users", require("./routes/userRoutes"));
 app.use("/api/services", require("./routes/serviceRoutes"));

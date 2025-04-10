@@ -1,4 +1,3 @@
-const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 const User = require("../models/User");
 const { verifyToken } = require("../utils/auth");
@@ -6,13 +5,7 @@ const { verifyToken } = require("../utils/auth");
 dotenv.config();
 
 const protect = async (req, res, next) => {
-  let token;
-  if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith("Bearer")
-  ) {
-    token = req.headers.authorization.split(" ")[1];
-  }
+  const token = req.cookies?.token; // ✅ Get token from cookie
 
   if (!token) {
     return res
@@ -21,7 +14,6 @@ const protect = async (req, res, next) => {
   }
 
   try {
-    // const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const decoded = verifyToken(token);
     req.user = await User.findById(decoded.id).select("-password");
     next();
