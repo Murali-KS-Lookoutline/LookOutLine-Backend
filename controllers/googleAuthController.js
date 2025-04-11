@@ -17,7 +17,13 @@ const googleCallback = async (req, res) => {
     sameSite: "Lax",
     maxAge: 24 * 60 * 60 * 1000, // 1 day
   });
-  res.redirect(`http://localhost:5173/`);
+
+  res.status(200).json({
+    message: "Login successful",
+    role: user.role,
+    name: user.name,
+    email: user.email,
+  });
 };
 
 module.exports = { googleCallback };

@@ -28,7 +28,12 @@ const signup = async (req, res) => {
         maxAge: 24 * 60 * 60 * 1000, // 1 day
       })
       .status(201)
-      .json({ message: "User registered successfully" });
+      .json({
+        message: "User registered successfully",
+        role: user.role,
+        name: user.name,
+        email: user.email,
+      });
   } catch (err) {
     res
       .status(400)
@@ -62,7 +67,12 @@ const login = async (req, res) => {
         maxAge: 24 * 60 * 60 * 1000, // 1 day
       })
       .status(201)
-      .json({ message: "User Login successfull" });
+      .json({
+        message: "User Login successful",
+        role: user.role,
+        name: user.name,
+        email: user.email,
+      });
   } catch (err) {
     res.status(400).json({ message: "Login failed", error: err.message });
   }
@@ -84,7 +94,7 @@ const forgotPassword = async (req, res) => {
     user.resetPasswordExpire = Date.now() + 15 * 60 * 1000; // 15 minutes
     await user.save();
 
-    const resetUrl = `http://localhost:5173/reset-password/${resetToken}`;
+    const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
     const message = `Reset your password using this link: ${resetUrl}`;
 
     await sendEmail(user.email, "Password Reset", message);
@@ -111,4 +121,22 @@ const logout = async (req, res) => {
   }
 };
 
-module.exports = { signup, login, logout };
+const getCurrentUser = (req, res) => {
+  const token = req.cookies.token;
+
+  if (!token) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    res.status(200).json({
+      id: decoded.id,
+      role: decoded.role,
+    });
+  } catch (err) {
+    res.status(401).json({ message: "Invalid token" });
+  }
+};
+
+module.exports = { signup, login, logout, forgotPassword, getCurrentUser };

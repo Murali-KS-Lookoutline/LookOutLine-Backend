@@ -31,7 +31,11 @@ app.use(cookieParser());
 // Middleware
 app.use(express.json()); // Parse JSON request bodies
 const corsOptions = {
-  origin: ["http://localhost:5173", "https://lookoutline.com"],
+  origin: [
+    "http://localhost:5173",
+    "https://lookoutline.com",
+    `${process.env.FRONTEND_URL}`,
+  ],
   credentials: true,
 };
 app.use(cors(corsOptions)); // Enable CORS
