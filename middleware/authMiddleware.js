@@ -5,13 +5,16 @@ const { verifyToken } = require("../utils/auth");
 dotenv.config();
 
 const protect = async (req, res, next) => {
-  const token = req.cookies?.token; // ✅ Get token from cookie
+  // ✅ Get token from Authorization header (e.g., Bearer <token>)
+  const authHeader = req.headers.authorization;
 
-  if (!token) {
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return res
       .status(401)
       .json({ message: "Not authorized, no token provided" });
   }
+
+  const token = authHeader.split(" ")[1];
 
   try {
     const decoded = verifyToken(token);
