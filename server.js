@@ -42,7 +42,11 @@ app.use(express.urlencoded({ extended: true }));
 
 // Middleware
 app.use(express.json()); // Parse JSON request bodies
-const allowedOrigins = ["http://localhost:5173", "https://lookoutline.com"];
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://lookoutline.com",
+  /^http:\/\/localhost:\d+$/,
+];
 
 if (process.env.FRONTEND_URL) {
   allowedOrigins.push(process.env.FRONTEND_URL);
@@ -52,8 +56,8 @@ const corsOptions = {
   origin: allowedOrigins,
   credentials: true,
 };
-
 app.use(cors(corsOptions)); // Enable CORS
+
 app.use(
   helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" },
