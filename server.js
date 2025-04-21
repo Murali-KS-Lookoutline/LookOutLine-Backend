@@ -27,10 +27,18 @@ app.use(
     secret: process.env.SESSION_SECRET || "fallback_secret",
     resave: false,
     saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === "production",
+      httpOnly: true,
+      sameSite: "lax",
+    },
   })
 );
 app.use(passport.initialize());
 app.use(passport.session());
+
+//app might accept HTML form submissions
+app.use(express.urlencoded({ extended: true }));
 
 // Middleware
 app.use(express.json()); // Parse JSON request bodies
@@ -46,22 +54,45 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions)); // Enable CORS
-app.use(helmet()); // Set security headers
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  })
+);
+
 app.use(morgan("combined")); // Log HTTP requests
 
-// Rate limiting
-const limiter = rateLimit({
-  windowMs: process.env.RATE_LIMIT_WINDOW_MS || 60 * 1000, // 1 minutes
-  max: process.env.RATE_LIMIT_MAX || 100, // Limit each IP to 100 requests per windowMs
+//for compression
+const compression = require("compression");
+app.use(compression());
+
+// Create different limiters
+const generalLimiter = rateLimit({
+  windowMs: parseInt(process.env.RATE_WINDOW) || 60 * 1000,
+  max: parseInt(process.env.RATE_LIMIT_MAX) || 100,
+  handler: function (req, res) {
+    console.warn(`Rate limit hit for IP: ${req.ip}`);
+    return res.status(429).json({
+      success: false,
+      message: "Too many requests. Please try again later.",
+    });
+  },
 });
-app.use(limiter);
+
+const authLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 10, // stricter
+  message: "Too many login attempts, please try again later.",
+});
+
+app.set("trust proxy", 1);
 
 // Routes
-app.use("/api/auth", require("./routes/authRoutes"));
-app.use("/api/google", require("./routes/googleAuth"));
-app.use("/api/products", require("./routes/productRoutes"));
-app.use("/api/users", require("./routes/userRoutes"));
-app.use("/api/services", require("./routes/serviceRoutes"));
+app.use("/api/auth", authLimiter, require("./routes/authRoutes"));
+app.use("/api/google", generalLimiter, require("./routes/googleAuth"));
+app.use("/api/products", generalLimiter, require("./routes/productRoutes"));
+app.use("/api/users", generalLimiter, require("./routes/userRoutes"));
+app.use("/api/services", generalLimiter, require("./routes/serviceRoutes"));
 
 // Error handling middleware (must be after routes)
 app.use(errorHandler);
