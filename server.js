@@ -20,31 +20,38 @@ connectDB();
 // Initialize Express app
 const app = express();
 
+app.use(cookieParser());
 //google integration
 app.use(
-  session({ secret: "your_secret", resave: false, saveUninitialized: false })
+  session({
+    secret: process.env.SESSION_SECRET || "fallback_secret",
+    resave: false,
+    saveUninitialized: false,
+  })
 );
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(cookieParser());
 
 // Middleware
 app.use(express.json()); // Parse JSON request bodies
+const allowedOrigins = ["http://localhost:5173", "https://lookoutline.com"];
+
+if (process.env.FRONTEND_URL) {
+  allowedOrigins.push(process.env.FRONTEND_URL);
+}
+
 const corsOptions = {
-  origin: [
-    "http://localhost:5173",
-    "https://lookoutline.com",
-    `${process.env.FRONTEND_URL}`,
-  ],
+  origin: allowedOrigins,
   credentials: true,
 };
+
 app.use(cors(corsOptions)); // Enable CORS
 app.use(helmet()); // Set security headers
 app.use(morgan("combined")); // Log HTTP requests
 
 // Rate limiting
 const limiter = rateLimit({
-  windowMs: process.env.RATE_LIMIT_WINDOW_MS || 15 * 60 * 1000, // 15 minutes
+  windowMs: process.env.RATE_LIMIT_WINDOW_MS || 60 * 1000, // 1 minutes
   max: process.env.RATE_LIMIT_MAX || 100, // Limit each IP to 100 requests per windowMs
 });
 app.use(limiter);
