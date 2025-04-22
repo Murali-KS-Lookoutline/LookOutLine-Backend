@@ -1,4 +1,4 @@
-const UploadedImage = require("../models/images");
+const UploadedImage = require("../models/Images");
 const mongoose = require("mongoose");
 
 // Upload/Create Image
