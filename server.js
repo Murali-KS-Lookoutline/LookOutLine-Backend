@@ -40,6 +40,16 @@ app.use(passport.session());
 //app might accept HTML form submissions
 app.use(express.urlencoded({ extended: true }));
 
+// Serve static files (uploads folder)
+const fs = require("fs");
+const path = require("path");
+
+const uploadFolder = path.join(__dirname, "uploads");
+if (!fs.existsSync(uploadFolder)) {
+  fs.mkdirSync(uploadFolder);
+}
+app.use("/uploads", express.static(uploadFolder)); // Serve static files from the uploads folder
+
 // Middleware
 app.use(express.json()); // Parse JSON request bodies
 const allowedOrigins = [
@@ -97,6 +107,7 @@ app.use("/api/google", generalLimiter, require("./routes/googleAuth"));
 app.use("/api/products", generalLimiter, require("./routes/productRoutes"));
 app.use("/api/users", generalLimiter, require("./routes/userRoutes"));
 app.use("/api/services", generalLimiter, require("./routes/serviceRoutes"));
+app.use("/api/images", generalLimiter, require("./routes/imageRoutes"));
 
 // Error handling middleware (must be after routes)
 app.use(errorHandler);

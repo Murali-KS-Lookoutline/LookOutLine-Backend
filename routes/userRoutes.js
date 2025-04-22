@@ -10,10 +10,8 @@ const {
 const router = express.Router();
 router.route("/:role").get(getUserByRole);
 
-router
-  .route("/:id")
-  .delete(protect, authorize("admin"), deleteUser)
-  .put(protect, updateUser)
-  .get(protect, getUserProfile);
+router.route("/:id").delete(protect, authorize("admin"), deleteUser);
+
+router.route("/profile").put(protect, updateUser).get(protect, getUserProfile);
 
 module.exports = router;

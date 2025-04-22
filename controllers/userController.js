@@ -20,18 +20,20 @@ const deleteUser = async (req, res) => {
 // @route   PUT /api/users/:id
 const updateUser = async (req, res) => {
   try {
-    const user = await User.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      { $set: req.body },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
     res.status(200).json({
       message: "User updated successfully",
-      role: user.role,
-      name: user.name,
-      email: user.email,
+      user,
     });
   } catch (err) {
     res

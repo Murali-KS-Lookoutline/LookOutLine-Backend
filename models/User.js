@@ -16,14 +16,19 @@ const userSchema = new mongoose.Schema({
   avatar: { type: String },
   mobile: { type: Number },
   last_login_date: { type: Date, default: Date.now },
-  address_details: {
-    address_line: { type: String },
-    city: { type: String },
-    state: { type: String },
-    pincode: { type: String },
-    country: { type: String, default: "India" },
-    mobile: { type: Number },
-  },
+  address_details: [
+    {
+      name: String,
+      phone: Number,
+      pincode: String,
+      locality: String,
+      address: String,
+      city: String,
+      state: String,
+      landmark: String,
+      type: { type: String, enum: ["Home", "Work"], default: "Home" },
+    },
+  ],
   shoppingCart: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "ShoppingCart",
