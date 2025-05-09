@@ -136,7 +136,7 @@ const logout = async (req, res) => {
 
 // @desc    Get current user info from token
 // @route   GET /api/auth/me
-const getCurrentUser = (req, res) => {
+const getCurrentUser = async (req, res) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -144,12 +144,22 @@ const getCurrentUser = (req, res) => {
   }
 
   const token = authHeader.split(" ")[1];
-
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    const user = await User.findOne({ _id: decoded.id });
+    if (!user) return res.status(404).json({ message: "User not found" });
+
     res.status(200).json({
       id: decoded.id,
       role: decoded.role,
+      name: user.name,
+      lastname: user.lastname,
+      email: user.email,
+      mobile: user.mobile,
+      avatar: user.avatar,
+      gender: user.gender,
+      address_details: user.address_details,
     });
   } catch (err) {
     res.status(401).json({ message: "Invalid token" });

@@ -72,6 +72,7 @@ const getUserByRole = async (req, res) => {
     const formattedUsers = users.map((user) => ({
       uid: user.uid,
       name: user.name,
+      lastName: user.lastName,
       mobile: user.mobile || user.address_details?.mobile || null, // Use main mobile, fallback to address mobile
       address: [
         user.address_details?.address_line,

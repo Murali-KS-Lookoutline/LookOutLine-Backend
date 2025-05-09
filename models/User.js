@@ -6,6 +6,8 @@ const { v4: uuidv4 } = require("uuid");
 const userSchema = new mongoose.Schema({
   uid: { type: String, required: true, unique: true, default: uuidv4 },
   name: { type: String, required: true },
+  lastname: { type: String },
+  gender: { type: String },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   role: {
