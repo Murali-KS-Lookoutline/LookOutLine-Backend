@@ -107,6 +107,7 @@ app.use("/api/google", generalLimiter, require("./routes/googleAuth"));
 app.use("/api/products", generalLimiter, require("./routes/productRoutes"));
 app.use("/api/users", generalLimiter, require("./routes/userRoutes"));
 app.use("/api/services", generalLimiter, require("./routes/serviceRoutes"));
+app.use("/api/carts", generalLimiter, require("./routes/shoppingCartRoutes"));
 app.use("/api/images", generalLimiter, require("./routes/imageRoutes"));
 
 // Error handling middleware (must be after routes)
