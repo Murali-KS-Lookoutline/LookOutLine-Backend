@@ -28,7 +28,7 @@ const productSchema = new mongoose.Schema({
       address: { type: String },
     },
   },
-  imageUrls: [{ type: String }],
+  imageUrls: [{ type: String, default: [] }],
   dimensions: {
     weight: { value: { type: Number }, unit: { type: String, default: "g" } },
   },

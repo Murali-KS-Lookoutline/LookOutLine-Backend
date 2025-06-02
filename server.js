@@ -45,10 +45,18 @@ const fs = require("fs");
 const path = require("path");
 
 const uploadFolder = path.join(__dirname, "uploads");
+const productUploadFolder = path.join(uploadFolder, "productUploads");
+
 if (!fs.existsSync(uploadFolder)) {
   fs.mkdirSync(uploadFolder);
 }
-app.use("/uploads", express.static(uploadFolder)); // Serve static files from the uploads folder
+if (!fs.existsSync(productUploadFolder)) {
+  fs.mkdirSync(productUploadFolder);
+}
+
+// Serve both folders statically (optional, if you want public access)
+app.use("/uploads", express.static(uploadFolder));
+app.use("/product-images", express.static(productUploadFolder));
 
 // Middleware
 app.use(express.json()); // Parse JSON request bodies

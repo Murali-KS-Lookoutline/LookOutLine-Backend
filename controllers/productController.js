@@ -4,24 +4,112 @@ const mongoose = require("mongoose");
 // Create Product
 const createProduct = async (req, res) => {
   try {
-    const { productName, category, brand, imageUrls } = req.body;
+    const { productName, category, brand } = req.body;
+    const imageFiles = req.files;
 
+    console.log(imageFiles);
     // Basic validation for required fields
     if (!productName || !category || !brand) {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
-    // Ensure imageUrls is an array
-    if (imageUrls && !Array.isArray(imageUrls)) {
-      return res.status(400).json({ message: "imageUrls should be an array" });
+    // Extract file paths (relative or full URL as needed)
+    let imageUrls = [];
+    if (Array.isArray(imageFiles)) {
+      imageUrls = imageFiles.map(
+        (file) => `/uploads/productUploads/${file.filename}`
+      );
     }
 
-    const product = await Product.create(req.body);
+    // Combine imageUrls into the product object
+    const productData = {
+      ...req.body,
+      imageUrls: imageUrls,
+    };
+
+    if (typeof req.body.specifications === "string") {
+      req.body.specifications = JSON.parse(req.body.specifications);
+    }
+
+    const product = await Product.create(productData);
     res.status(201).json(product);
   } catch (err) {
+    console.error(err);
+    res.status(400).json({
+      message: "Product creation failed",
+      error: err.message,
+    });
+    return;
+  }
+};
+
+// Update Product
+const updateProduct = async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: "Invalid product ID" });
+    }
+
+    // Parse nested JSON strings if necessary
+    if (typeof req.body.metadata === "string") {
+      try {
+        req.body.metadata = JSON.parse(req.body.metadata);
+      } catch (parseError) {
+        return res.status(400).json({ message: "Invalid metadata format" });
+      }
+    }
+
+    if (typeof req.body.specifications === "string") {
+      try {
+        req.body.specifications = JSON.parse(req.body.specifications);
+      } catch (parseError) {
+        return res
+          .status(400)
+          .json({ message: "Invalid specifications format" });
+      }
+    }
+
+    const imageFiles = req.files;
+    let imageUrls = [];
+
+    if (Array.isArray(imageFiles)) {
+      imageUrls = imageFiles.map(
+        (file) => `/uploads/productUploads/${file.filename}`
+      );
+    }
+
+    // Combine imageUrls only if new images are uploaded
+    const updatedData = {
+      ...req.body,
+    };
+
+    if (imageUrls.length > 0) {
+      updatedData.imageUrls = imageUrls;
+    }
+
+    if (typeof req.body.specifications === "string") {
+      req.body.specifications = JSON.parse(req.body.specifications);
+    }
+
+    const product = await Product.findByIdAndUpdate(
+      req.params.id,
+      updatedData,
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    res.status(200).json(product);
+  } catch (err) {
+    console.error(err);
     res
       .status(400)
-      .json({ message: "Product creation failed", error: err.message });
+      .json({ message: "Product update failed", error: err.message });
   }
 };
 
@@ -52,19 +140,19 @@ const getProducts = async (req, res) => {
     Object.assign(filter, otherFilters);
 
     // Pagination setup
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const skip = (page - 1) * limit;
+    // const pageNum = parseInt(page) || 1;
+    // const limitNum = parseInt(limit) || 10;
+    const pageNum = 1;
+    const limitNum = 10;
 
-    const products = await Product.find(filter).skip(skip).limit(limit);
+    const skip = (pageNum - 1) * limitNum;
 
-    // Convert _id to id
-    const formattedProducts = products.map((product) => ({
-      id: product._id,
-      ...product.toObject(),
-    }));
+    const products = await Product.find(filter).skip(skip).limit(limitNum);
+    const formattedProducts = products.map((product) => product.toObject());
 
-    res.status(200).json({ page, limit, products: formattedProducts });
+    res
+      .status(200)
+      .json({ page: pageNum, limit: limitNum, products: formattedProducts });
   } catch (err) {
     res
       .status(400)
@@ -94,28 +182,6 @@ const getProductById = async (req, res) => {
     res
       .status(400)
       .json({ message: "Failed to fetch product", error: err.message });
-  }
-};
-
-// Update Product
-const updateProduct = async (req, res) => {
-  try {
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res.status(400).json({ message: "Invalid product ID" });
-    }
-
-    const product = await Product.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
-    if (!product) {
-      return res.status(404).json({ message: "Product not found" });
-    }
-    res.status(200).json(product);
-  } catch (err) {
-    res
-      .status(400)
-      .json({ message: "Product update failed", error: err.message });
   }
 };
 

@@ -7,7 +7,7 @@ const {
 } = require("../controllers/imageController");
 
 // Import the multer upload configuration
-const upload = require("../config/multerConfig");
+const upload = require("../config/multerConfigs/uploadConfig");
 
 const router = express.Router();
 
