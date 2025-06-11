@@ -11,10 +11,9 @@ const router = express.Router();
 
 router
   .route("/")
-  // .post(protect, authorize("admin"), createService)
-  .post(createCart)
-  .get(protect, getCart); // Get all products (with optional filtering)
-
-router.route("/:id").put(updateCart).delete(deleteCart);
+  .post(protect, createCart)
+  .get(protect, getCart)
+  .put(protect, updateCart)
+  .delete(protect, deleteCart);
 
 module.exports = router;

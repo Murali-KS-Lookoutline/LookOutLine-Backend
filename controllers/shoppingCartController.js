@@ -16,9 +16,9 @@ const createCart = async (req, res) => {
 // Get Carts
 const getCart = async (req, res) => {
   try {
-    const cartItems = await ShoppingCart.find({ userId: req.user.id }).populate(
-      "product_id"
-    );
+    const cartItems = await ShoppingCart.find({
+      userId: req.user._id,
+    }).populate("product_id");
 
     // Flatten product data into main object
     const cart = cartItems.map((item) => {
@@ -44,20 +44,47 @@ const getCart = async (req, res) => {
 };
 
 // Update cart
+// const updateCart = async (req, res) => {
+//   try {
+//     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+//       return res.status(400).json({ message: "Invalid cart ID" });
+//     }
+
+//     const cart = await ShoppingCart.findByIdAndUpdate(req.params.id, req.body, {
+//       new: true,
+//       runValidators: true,
+//     });
+//     if (!cart) {
+//       return res.status(404).json({ message: "Cart not found" });
+//     }
+//     res.status(200).json(cart);
+//   } catch (err) {
+//     res.status(400).json({ message: "Cart update failed", error: err.message });
+//   }
+// };
+
 const updateCart = async (req, res) => {
   try {
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res.status(400).json({ message: "Invalid cart ID" });
+    const { userId, product_id, quantity } = req.body;
+
+    if (
+      !mongoose.Types.ObjectId.isValid(userId) ||
+      !mongoose.Types.ObjectId.isValid(product_id)
+    ) {
+      return res.status(400).json({ message: "Invalid user ID or product ID" });
     }
 
-    const cart = await ShoppingCart.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
-    if (!cart) {
-      return res.status(404).json({ message: "Cart not found" });
+    const updatedCart = await ShoppingCart.findOneAndUpdate(
+      { userId, product_id },
+      { quantity },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedCart) {
+      return res.status(404).json({ message: "Cart item not found" });
     }
-    res.status(200).json(cart);
+
+    res.status(200).json(updatedCart);
   } catch (err) {
     res.status(400).json({ message: "Cart update failed", error: err.message });
   }
@@ -66,11 +93,17 @@ const updateCart = async (req, res) => {
 // Delete Service
 const deleteCart = async (req, res) => {
   try {
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res.status(400).json({ message: "Invalid Cart ID" });
+    const { userId, product_id } = req.body;
+    console.log(userId, product_id);
+    if (
+      !mongoose.Types.ObjectId.isValid(userId) ||
+      !mongoose.Types.ObjectId.isValid(product_id)
+    ) {
+      return res.status(400).json({ message: "Invalid user ID or product ID" });
     }
 
-    const cart = await ShoppingCart.findByIdAndDelete(req.params.id);
+    // const cart = await ShoppingCart.findByIdAndDelete(req.params.id);
+    const cart = await ShoppingCart.findOneAndDelete({ userId, product_id });
     if (!cart) {
       return res.status(404).json({ message: "Cart not found" });
     }
